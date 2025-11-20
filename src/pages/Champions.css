@@ -1,0 +1,91 @@
+.champions-page {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.search-container {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 1rem;
+    background-color: rgba(10, 50, 60, 0.5);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    border-radius: var(--border-radius);
+    font-size: 1.1rem;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
+}
+
+.champions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1.5rem;
+}
+
+.champion-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(9, 20, 40, 0.6);
+    border: 1px solid transparent;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.champion-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-accent);
+    background-color: rgba(10, 50, 60, 0.8);
+}
+
+.champion-image-wrapper {
+    overflow: hidden;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    width: 80px;
+    height: 80px;
+    margin-bottom: 0.5rem;
+    transition: border-color 0.3s;
+}
+
+.champion-card:hover .champion-image-wrapper {
+    border-color: var(--color-accent);
+}
+
+.champion-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.1);
+    /* Slight zoom to hide edges if any */
+}
+
+.champion-name {
+    font-weight: bold;
+    color: var(--color-text-secondary);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.champion-card:hover .champion-name {
+    color: var(--color-text-primary);
+}
+
+.loading {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 3rem;
+    color: var(--color-accent);
+}
