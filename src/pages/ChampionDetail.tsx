@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getChampion, getVersion, getItems } from '../services/dataService';
+import { buildEngine } from '../services/buildEngine/BuildEngine';
 import type { Champion } from '../types/champion';
 import type { Item } from '../types/item';
 import './ChampionDetail.css';
@@ -35,55 +36,23 @@ const ChampionDetail: React.FC = () => {
         fetchData();
     }, [id]);
 
-    const getRecommendedItems = (champion: Champion | null, allItems: Item[]): { boots: Item[], core: Item[] } => {
-        if (!champion || !allItems.length) return { boots: [], core: [] };
+    /**
+     * USA EL NUEVO BUILD ENGINE
+     * Ahora la lógica de builds sigue los principios del jugador profesional:
+     * - No hay builds estáticas
+     * - Todo se evalúa por contexto
+     * - Sistema de scoring ponderado
+     */
+    const getRecommendedItems = (champion: Champion | null, allItems: Item[]): { boots: Item[], core: Item[], tips: string[] } => {
+        if (!champion || !allItems.length) return { boots: [], core: [], tips: [] };
 
-        const role = champion.tags[0]; // Primary role
-
-        // Filter for final items (depth 3 or usually expensive items without 'into')
-        // Note: 'depth' might not be on all items in the json, so we fallback to cost > 2000
-        const finalItems = allItems.filter(item =>
-            (item.depth === 3 || item.gold.total > 2000) &&
-            item.maps['11'] === true &&
-            item.gold.purchasable
-        );
-
-        let recommended: Item[] = [];
-
-        // Simple heuristic based on role
-        switch (role) {
-            case 'Mage':
-                recommended = finalItems.filter(i => i.tags.includes('SpellDamage') && i.tags.includes('Mana'));
-                break;
-            case 'Marksman':
-                recommended = finalItems.filter(i => i.tags.includes('Damage') && (i.tags.includes('CriticalStrike') || i.tags.includes('AttackSpeed')));
-                break;
-            case 'Tank':
-                recommended = finalItems.filter(i => i.tags.includes('Health') && (i.tags.includes('Armor') || i.tags.includes('SpellBlock')));
-                break;
-            case 'Fighter':
-                recommended = finalItems.filter(i => i.tags.includes('Damage') && i.tags.includes('Health'));
-                break;
-            case 'Assassin':
-                recommended = finalItems.filter(i => i.tags.includes('Damage') && !i.tags.includes('AttackSpeed') && !i.tags.includes('Health'));
-                break;
-            case 'Support':
-                recommended = finalItems.filter(i => i.tags.includes('ManaRegen') || i.tags.includes('HealthRegen') || i.gold.total < 2600);
-                break;
-            default:
-                recommended = finalItems.filter(i => i.tags.includes('Damage') || i.tags.includes('SpellDamage'));
-        }
-
-        // Add boots
-        const boots = allItems.filter(i => i.tags.includes('Boots') && i.gold.total > 300 && i.gold.purchasable);
-
-        // Return a mix: 1 Boot + 5 Items (randomized or top cost to simulate "full build")
-        // Sort by cost descending to get "big" items
-        recommended.sort((a, b) => b.gold.total - a.gold.total);
+        // Usar el BuildEngine con contexto por defecto
+        const recommendation = buildEngine.generateBuild(champion, allItems);
 
         return {
-            boots: boots.slice(0, 3), // Show a few boot options
-            core: recommended.slice(0, 6) // Show top 6 items
+            boots: recommendation.boots,
+            core: recommendation.coreItems,
+            tips: recommendation.tips
         };
     };
 
@@ -228,6 +197,16 @@ const ChampionDetail: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
+                            {recommendedBuild.tips && recommendedBuild.tips.length > 0 && (
+                                <div className="build-group build-tips">
+                                    <h4>💡 Build Strategy Tips</h4>
+                                    <ul className="tips-list">
+                                        {recommendedBuild.tips.map((tip, index) => (
+                                            <li key={index}>{tip}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
 
                         <div className="champion-section stats-section">
